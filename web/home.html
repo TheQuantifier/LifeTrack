@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LifeTracker - Home</title>
+  <meta
+    name="description"
+    content="Capture voice or text life updates, auto-sort them, and review progress by category."
+  />
+  <link rel="stylesheet" href="styles/default.css" />
+  <link rel="stylesheet" href="styles/home.css" />
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="main main--home">
+    <section class="hero card">
+      <div class="hero-copy">
+        <p class="eyebrow">Life operating system</p>
+        <h1>Log what happened. Let LifeTracker sort the signal.</h1>
+        <p class="subtle">
+          Speak or type an update, auto-classify it into the right life area, and keep a clean running history.
+        </p>
+      </div>
+
+      <form id="entryForm" class="composer" autocomplete="off">
+        <label class="composer__field" for="entryText">
+          <span class="composer__label">Today’s update</span>
+          <textarea
+            id="entryText"
+            name="entryText"
+            rows="4"
+            placeholder="Examples: Had a strong workout and slept 8 hours. Paid the Amex bill. Had a hard conversation with Sarah."
+            required
+          ></textarea>
+        </label>
+
+        <div class="composer__controls">
+          <label class="composer__field composer__field--compact" for="bucketSelect">
+            <span class="composer__label">Bucket</span>
+            <select id="bucketSelect" name="bucketSelect"></select>
+          </label>
+
+          <label class="composer__field composer__field--compact" for="categoryInput">
+            <span class="composer__label">Category</span>
+            <input id="categoryInput" name="categoryInput" type="text" placeholder="Auto-filled from the update" />
+          </label>
+        </div>
+
+        <div class="composer__actions">
+          <button type="button" class="btn btn--secondary" id="voiceButton">Start voice capture</button>
+          <button type="submit" class="btn btn--primary">Save update</button>
+        </div>
+
+        <p class="status" id="statusMessage" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="overview">
+      <article class="card stat">
+        <p class="stat__label">Entries this week</p>
+        <p class="stat__value" id="statWeek">0</p>
+      </article>
+      <article class="card stat">
+        <p class="stat__label">Active categories</p>
+        <p class="stat__value" id="statCategories">0</p>
+      </article>
+      <article class="card stat">
+        <p class="stat__label">Top focus area</p>
+        <p class="stat__value stat__value--small" id="statTopBucket">None yet</p>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <aside class="card sidebar">
+        <div class="section-heading">
+          <h2>Buckets</h2>
+          <p class="subtle">Filter the timeline by area.</p>
+        </div>
+        <div id="bucketFilters" class="bucket-filters"></div>
+      </aside>
+
+      <section class="card timeline-panel">
+        <div class="section-heading">
+          <div>
+            <h2>Recent updates</h2>
+            <p class="subtle" id="timelineHint">All saved entries.</p>
+          </div>
+          <button class="btn btn--ghost" id="seedButton" type="button">Load demo data</button>
+        </div>
+
+        <div id="timeline" class="timeline" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="scripts/default.js" type="module"></script>
+  <script src="scripts/home.js" type="module"></script>
+</body>
+</html>
