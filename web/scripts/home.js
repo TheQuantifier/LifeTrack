@@ -18,25 +18,37 @@ const statTopBucket = document.getElementById("statTopBucket");
 let activeFilter = "all";
 let recognition = null;
 let listening = false;
+let classifyTimer = null;
+let allEntries = [];
 
-init();
+init().catch((error) => {
+  setStatus(error.message || "Could not load the app.");
+});
 
-function init() {
+async function init() {
+  await api.loadBootstrap();
   renderBucketSelect();
   renderBucketFilters();
   attachEvents();
-  syncClassificationPreview();
-  render();
+  await syncClassificationPreview();
+  await render();
   setupSpeechRecognition();
 }
 
 function attachEvents() {
-  entryText.addEventListener("input", syncClassificationPreview);
-  form.addEventListener("submit", handleSubmit);
-  seedButton.addEventListener("click", () => {
-    api.seedDemoEntries();
-    render();
-    setStatus("Demo entries loaded.");
+  entryText.addEventListener("input", () => {
+    window.clearTimeout(classifyTimer);
+    classifyTimer = window.setTimeout(() => {
+      syncClassificationPreview().catch((error) => setStatus(error.message));
+    }, 250);
+  });
+  form.addEventListener("submit", (event) => {
+    handleSubmit(event).catch((error) => setStatus(error.message));
+  });
+  seedButton.addEventListener("click", async () => {
+    await api.seedDemoEntries();
+    await render();
+    setStatus("Demo entries loaded into the database.");
   });
 }
 
@@ -61,12 +73,12 @@ function renderBucketFilters() {
       bucketFilters.querySelectorAll("[data-filter]").forEach((candidate) => {
         candidate.classList.toggle("is-active", candidate === button);
       });
-      render();
+      render().catch((error) => setStatus(error.message));
     });
   });
 }
 
-function syncClassificationPreview() {
+async function syncClassificationPreview() {
   const text = entryText.value.trim();
   if (!text) {
     bucketSelect.value = api.buckets[0].id;
@@ -74,14 +86,14 @@ function syncClassificationPreview() {
     return;
   }
 
-  const classification = api.classifyText(text);
+  const classification = await api.classifyText(text);
   bucketSelect.value = classification.bucket;
   if (!categoryInput.matches(":focus")) {
     categoryInput.value = classification.category;
   }
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   const text = entryText.value.trim();
   const category = categoryInput.value.trim();
@@ -91,20 +103,20 @@ function handleSubmit(event) {
     return;
   }
 
-  api.saveEntry({
+  await api.saveEntry({
     text,
     bucket: bucketSelect.value,
-    category: category || api.classifyText(text).category,
+    category: category || (await api.classifyText(text)).category,
   });
 
   form.reset();
-  syncClassificationPreview();
-  render();
+  await syncClassificationPreview();
+  await render();
   setStatus("Life update saved.");
 }
 
-function render() {
-  const allEntries = api.getEntries();
+async function render() {
+  allEntries = await api.getEntries();
   const entries = activeFilter === "all" ? allEntries : allEntries.filter((entry) => entry.bucket === activeFilter);
 
   renderStats(allEntries);
@@ -177,7 +189,7 @@ function setupSpeechRecognition() {
       .join(" ")
       .trim();
     entryText.value = transcript;
-    syncClassificationPreview();
+    syncClassificationPreview().catch((error) => setStatus(error.message));
   });
 
   recognition.addEventListener("end", () => {

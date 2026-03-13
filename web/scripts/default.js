@@ -19,7 +19,7 @@ const FALLBACK_FRAGMENTS = {
     <footer class="site-footer">
       <div class="site-footer__inner">
         <p>LifeTracker web prototype</p>
-        <p>Stores data locally in your browser for now.</p>
+        <p>Uses the configured API, SQL database, and optional LLM classification service.</p>
       </div>
     </footer>
   `,
